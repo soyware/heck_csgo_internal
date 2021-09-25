@@ -1,0 +1,15 @@
+knife animations fix
+backtrack doesnt't check if penetratable
+backtrack to tick with highest hitchance?
+improve bones accuracy
+construct bones of enemies behind
+desync sucks
+make desync work with fakelag
+
+try to dont change bsendpacket in breaker
+
+add molly/smoke range
+backtrack extend is shit
+add out of screen
+
+investigate text bottom left screen at the end of the match
