@@ -185,6 +185,76 @@ namespace Features
 			return reinterpret_cast<Fn>(Signatures::__MsgFunc_ServerRankRevealAll)(unk);
 		}
 
+		// commented out as Valve removed bots from competitive
+		/* 
+		void AutoTakeBot(C_CSPlayer* player, CUserCmd* cmd)
+		{
+			if (!(*G::pGameRules) || (*G::pGameRules)->IsWarmupPeriod())
+				return;
+
+			if (cmd->tick_count % 2 != 0)
+				return;
+
+			if (player->GetLifestate() != LIFE_DEAD)
+				return;
+
+			if (player->GetObserverMode() == OBS_MODE_ROAMING)
+			{
+				I::EngineClient->ClientCmd_Unrestricted("spec_mode 4");
+				return;
+			}
+
+			C_BaseEntity* obsTarget = player->GetObserverTarget();
+			if (!obsTarget)
+			{
+				bool foundBot = false;
+
+				for (int i = 1; i <= G::Globals->maxClients; ++i)
+				{
+					C_CSPlayer* entity = static_cast<C_CSPlayer*>(I::EntityList->GetClientEntity(i));
+					if (!entity || entity->IsDormant() || !entity->IsAlive() || (entity->GetTeam() != player->GetTeam()))
+						continue;
+
+					if (entity->GetFlags() & FL_FAKECLIENT)
+					{
+						foundBot = true;
+						break;
+					}
+				}
+
+				if (!foundBot)
+					return;
+			}
+			else if ((obsTarget->GetTeam() != player->GetTeam()) || !(obsTarget->GetFlags() & FL_FAKECLIENT))
+				return;
+
+			cmd->buttons |= IN_USE;
+		}
+
+		void AutoHoldBot()
+		{
+			if (!(*G::pGameRules) || (*G::pGameRules)->IsWarmupPeriod())
+				return;
+
+			C_BaseEntity* player = I::EntityList->GetClientEntity(I::EngineClient->GetLocalPlayer());
+			if (!player)
+				return;
+
+			for (int i = 1; i <= G::Globals->maxClients; ++i)
+			{
+				C_BaseEntity* entity = I::EntityList->GetClientEntity(i);
+				if (!entity || entity->IsDormant() || (entity->GetTeam() != player->GetTeam()))
+					continue;
+
+				if (entity->GetFlags() & FL_FAKECLIENT)
+				{
+					I::EngineClient->ClientCmd_Unrestricted("holdpos");
+					break;
+				}
+			}
+		}
+		*/
+
 		namespace Log
 		{
 			struct CTeamDmg

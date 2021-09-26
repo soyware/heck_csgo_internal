@@ -37,7 +37,7 @@ HINSTANCE g_hModule;
 
 void FatalError(const char* err)
 {
-#if _DEBUG
+#ifdef _DEBUG
 	__debugbreak();
 #else
 	static CCommand empty;
