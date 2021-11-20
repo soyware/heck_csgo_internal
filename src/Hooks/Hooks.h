@@ -14,7 +14,7 @@ namespace Hooks
 #include "EngineSound.h"
 #include "RenderView.h"
 #include "BSPTree.h"
-#include "ClientState.h"
+//#include "ClientState.h"
 #include "EngineClient.h"
 
 namespace Hooks
@@ -26,7 +26,7 @@ namespace Hooks
 	CVTH hkEmitSound;
 	CVTH hkRenderView;
 	CVTH hkToolBSPTree;
-	CVTH hkClientState;
+	//CVTH hkClientState;
 	CVTH hkEngineClient;
 	CVTH hkNetChan;
 
@@ -63,22 +63,23 @@ namespace Hooks
 		hkToolBSPTree.Init(I::EngineClient->GetBSPTreeQuery(), "engine.dll");
 		oListLeavesInBox = hkToolBSPTree.Hook<ListLeavesInBoxFn>(6, &ListLeavesInBox);
 
-		void* ClientState = reinterpret_cast<void*>(**reinterpret_cast<uintptr_t**>(GetVF<uintptr_t>(I::EngineClient, 7) + 0x4) + 0x8);
+		// I wasn't getting connectionless S2C_CONNREJECT when server lagging, plus we should be ignoring them when connected
+		// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/baseclientstate.cpp#L1912
+		//hkClientState.Init(ClientState, "engine.dll", );
+		//oProcessConnectionlessPacket = hkClientState.Hook<ProcessConnectionlessPacketFn>(1, &ProcessConnectionlessPacket);
+
 		// 0x30AC skip until voice chat related buffers
 		// 0x158F8 is the size of the voice chat related struct there are 5 of them
-		hkClientState.Init(ClientState, "engine.dll", 0x30AC + (0x158F8 * 5) + 0x710 + 0x2800);
-		// not sure if needed for a server lagger, maybe when crashing out of spectators
-		oProcessConnectionlessPacket = hkClientState.Hook<ProcessConnectionlessPacketFn>(1, &ProcessConnectionlessPacket);
-
-		// sv_cheats hook placed here because it can fit the empty space
-		hk_sv_cheats.Init(I::Cvar->FindVar("sv_cheats"), "engine.dll");
-		o_sv_cheats_GetInt = hk_sv_cheats.Hook<GetIntFn>(13, &sv_cheats_GetInt);
-
-		hkEngineClient.Init(I::EngineClient, "engine.dll", 0xF300);
+		// rest is just space that gets overwritten plus 4 bytes padding
+		hkEngineClient.Init(I::EngineClient, "engine.dll", 0x30AC + (0x158F8 * 5) + 0x710 + 0x2800 + 0x4);
 		oIsPlayingDemo = hkEngineClient.Hook<IsPlayingDemoFn>(82, &IsPlayingDemo);
 		oServerCmdKeyValues = hkEngineClient.Hook<ServerCmdKeyValuesFn>(187, &ServerCmdKeyValues);
 		oGetDemoPlaybackParameters = hkEngineClient.Hook<GetDemoPlaybackParametersFn>(218, &GetDemoPlaybackParameters);
 
+
+		// less padding crashes on host_writeconfig
+		hk_sv_cheats.Init(I::Cvar->FindVar("sv_cheats"), "engine.dll", 0xF500);
+		o_sv_cheats_GetInt = hk_sv_cheats.Hook<GetIntFn>(13, &sv_cheats_GetInt);
 
 		hk_weapon_debug_spread_show.Init(I::Cvar->FindVar("weapon_debug_spread_show"));
 		o_weapon_debug_spread_show_GetInt = hk_weapon_debug_spread_show.Hook<GetIntFn>(13, &weapon_debug_spread_show_GetInt);
@@ -112,7 +113,7 @@ namespace Hooks
 		hkEmitSound.Unhook();
 		hkRenderView.Unhook();
 		hkToolBSPTree.Unhook();
-		hkClientState.Unhook();
+		//hkClientState.Unhook();
 		hkEngineClient.Unhook();
 		hkNetChan.Unhook();
 

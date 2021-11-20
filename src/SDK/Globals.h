@@ -17,5 +17,6 @@ namespace G
 		ClientMode = **reinterpret_cast<ClientModeCSNormal***>(GetVF<uintptr_t>(I::Client, 10) + 0x5);
 		pGameRules = *reinterpret_cast<C_CSGameRules***>(GetVF<uintptr_t>(ClientMode, 20) + 0x7);
 		GlowObjectManager = reinterpret_cast<CGlowObjectManager* (*)()>(RelativeToDirect(GetVF<uintptr_t>(ClientMode, 44) + 0x22))();
+		//void* ClientState = reinterpret_cast<void*>(**reinterpret_cast<uintptr_t**>(GetVF<uintptr_t>(I::EngineClient, 7) + 0x4) + 0x8);
 	}
 }

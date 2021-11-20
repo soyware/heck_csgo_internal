@@ -90,14 +90,20 @@ public:
 
 	inline float GetLatency(int flow)
 	{
-		typedef float(__thiscall* Fn) (void*, int);
+		typedef float(__thiscall* Fn) (INetChannel*, int);
 		return GetVF<Fn>(this, 9)(this, flow);
 	}
 
 	inline float GetAvgLatency(int flow)
 	{
-		typedef float(__thiscall* Fn) (void*, int);
+		typedef float(__thiscall* Fn) (INetChannel*, int);
 		return GetVF<Fn>(this, 10)(this, flow);
+	}
+
+	inline int GetMaxRoutablePayloadSize()
+	{
+		typedef int(__thiscall* Fn) (INetChannel*);
+		return GetVF<Fn>(this, 69)(this);
 	}
 
 	// on top of "Net message exceeds max size (%u / %u)\n" reference
