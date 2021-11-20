@@ -97,6 +97,18 @@ struct vec3
 		return norm;
 	}
 
+	inline float operator[](int i)
+	{
+		assert((i >= 0) && (i < 3));
+		return ((float*)this)[i];
+	}
+
+	inline float operator[](int i) const
+	{
+		assert((i >= 0) && (i < 3));
+		return ((float*)this)[i];
+	}
+
 	vec3& operator*=(const vec3& vec) { x *= vec.x; y *= vec.y; z *= vec.z; return *this; }
 	vec3& operator*=(float fl) { x *= fl; y *= fl; z *= fl; return *this; }
 

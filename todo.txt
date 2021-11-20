@@ -1,15 +1,11 @@
-knife animations fix
+add an ability to choose chams materials
+fix knife animations
+backtrack to tick with highest hitchance? - done, needs testing
+add molly/smoke range - molly range not done
+improve duplicate packet check in fake latency (backtrack_extend)
+add out of screen arrows
 backtrack doesnt't check if penetratable
-backtrack to tick with highest hitchance?
-improve bones accuracy
+improve accuracy of hitboxes
 construct bones of enemies behind
-desync sucks
 make desync work with fakelag
-
-try to dont change bsendpacket in breaker
-
-add molly/smoke range
-backtrack extend is shit
-add out of screen
-
-investigate text bottom left screen at the end of the match
+investigate text at the bottom left at the end of the match screen

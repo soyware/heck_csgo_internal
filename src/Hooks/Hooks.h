@@ -13,8 +13,9 @@ namespace Hooks
 #include "Client.h"
 #include "EngineSound.h"
 #include "RenderView.h"
-#include "EngineClient.h"
 #include "BSPTree.h"
+#include "ClientState.h"
+#include "EngineClient.h"
 
 namespace Hooks
 {
@@ -24,12 +25,13 @@ namespace Hooks
 	CVTH hkModelRender;
 	CVTH hkEmitSound;
 	CVTH hkRenderView;
+	CVTH hkToolBSPTree;
+	CVTH hkClientState;
 	CVTH hkEngineClient;
 	CVTH hkNetChan;
-	CVTH hkToolBSPTree;
 
-	CVTH hk_weapon_debug_spread_show;
 	CVTH hk_sv_cheats;
+	CVTH hk_weapon_debug_spread_show;
 	CVTH hk_developer;
 	CVTH hk_net_showfragments;
 
@@ -58,21 +60,28 @@ namespace Hooks
 		hkRenderView.Init(I::RenderView, "engine.dll");
 		oDraw3DDebugOverlays = hkRenderView.Hook<Draw3DDebugOverlaysFn>(3, &Draw3DDebugOverlays);
 
-		// 0x158F8 is the size of the voice struct there are 5 of them
-		hkEngineClient.Init(I::EngineClient, "engine.dll", 0x4828 + (0x158F8 * 5) + 0x380C);
+		hkToolBSPTree.Init(I::EngineClient->GetBSPTreeQuery(), "engine.dll");
+		oListLeavesInBox = hkToolBSPTree.Hook<ListLeavesInBoxFn>(6, &ListLeavesInBox);
+
+		void* ClientState = reinterpret_cast<void*>(**reinterpret_cast<uintptr_t**>(GetVF<uintptr_t>(I::EngineClient, 7) + 0x4) + 0x8);
+		// 0x30AC skip until voice chat related buffers
+		// 0x158F8 is the size of the voice chat related struct there are 5 of them
+		hkClientState.Init(ClientState, "engine.dll", 0x30AC + (0x158F8 * 5) + 0x710 + 0x2800);
+		// not sure if needed for a server lagger, maybe when crashing out of spectators
+		oProcessConnectionlessPacket = hkClientState.Hook<ProcessConnectionlessPacketFn>(1, &ProcessConnectionlessPacket);
+
+		// sv_cheats hook placed here because it can fit the empty space
+		hk_sv_cheats.Init(I::Cvar->FindVar("sv_cheats"), "engine.dll");
+		o_sv_cheats_GetInt = hk_sv_cheats.Hook<GetIntFn>(13, &sv_cheats_GetInt);
+
+		hkEngineClient.Init(I::EngineClient, "engine.dll", 0xF300);
 		oIsPlayingDemo = hkEngineClient.Hook<IsPlayingDemoFn>(82, &IsPlayingDemo);
 		oServerCmdKeyValues = hkEngineClient.Hook<ServerCmdKeyValuesFn>(187, &ServerCmdKeyValues);
 		oGetDemoPlaybackParameters = hkEngineClient.Hook<GetDemoPlaybackParametersFn>(218, &GetDemoPlaybackParameters);
 
-		hkToolBSPTree.Init(I::EngineClient->GetBSPTreeQuery(), "engine.dll");
-		oListLeavesInBox = hkToolBSPTree.Hook<ListLeavesInBoxFn>(6, &ListLeavesInBox);
-
 
 		hk_weapon_debug_spread_show.Init(I::Cvar->FindVar("weapon_debug_spread_show"));
 		o_weapon_debug_spread_show_GetInt = hk_weapon_debug_spread_show.Hook<GetIntFn>(13, &weapon_debug_spread_show_GetInt);
-
-		hk_sv_cheats.Init(I::Cvar->FindVar("sv_cheats"), "engine.dll", 0xCE70);
-		o_sv_cheats_GetInt = hk_sv_cheats.Hook<GetIntFn>(13, &sv_cheats_GetInt);
 
 		hk_developer.Init(I::Cvar->FindVar("developer"));
 		o_developer_GetInt = hk_developer.Hook<GetIntFn>(13, &developer_GetInt);
@@ -102,12 +111,13 @@ namespace Hooks
 		hkModelRender.Unhook();
 		hkEmitSound.Unhook();
 		hkRenderView.Unhook();
+		hkToolBSPTree.Unhook();
+		hkClientState.Unhook();
 		hkEngineClient.Unhook();
 		hkNetChan.Unhook();
-		hkToolBSPTree.Unhook();
 
-		hk_weapon_debug_spread_show.Unhook();
 		hk_sv_cheats.Unhook();
+		hk_weapon_debug_spread_show.Unhook();
 		hk_developer.Unhook();
 		hk_net_showfragments.Unhook();
 

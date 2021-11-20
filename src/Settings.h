@@ -171,7 +171,7 @@ namespace Settings
 		namespace Crosshair
 		{
 			ConVar Snipers;
-			ConVar Recoil;
+			ConVar Recoil; // TODO: would be nice to have custom drawn AUG crosshair
 		}
 
 		namespace ShowImpacts
@@ -254,6 +254,14 @@ namespace Settings
 			ConVar Chance;
 			ConVar MinSpecs;
 			ConVar OnlyTeamkill;
+		}
+
+		namespace ServerLagger
+		{
+			ConVar Enable;
+			ConVar Strength;
+			ConVar RestTime;
+			ConVar LagTime;
 		}
 
 		ConVar ShowRanks;
@@ -443,6 +451,78 @@ namespace Settings
 		static ConCommand* fullUpdate = I::Cvar->FindCommand("cl_fullupdate");
 		fullUpdate->Dispatch(empty);
 	}
+
+	/*
+	void ServerLaggerChanged(void* var, const char* pOldValue, float flOldValue)
+	{
+		static const char* varNames[] = {
+			"sv_maxroutable",
+			"net_maxroutable",
+			"net_compresspackets_minsize",
+			"net_compresspackets",
+			"net_threaded_socket_recovery_time",
+			"net_threaded_socket_recovery_rate",
+			"net_threaded_socket_burst_cap"
+		};
+
+		static const int values[] = {
+			13,
+			13,
+			0,
+			1,
+			2,
+			999999999,
+			999999999
+		};
+
+		static int oValues[_countof(values)];
+
+		static_assert(_countof(varNames) == _countof(values));
+
+		DWORD oldProtect;
+
+		if (Misc::ServerLagger::Enable.GetInt())
+		{
+			for (UINT i = 0; i < _countof(varNames); ++i)
+			{
+				ConVar* cv = I::Cvar->FindVar(varNames[i]);
+				if (!cv)
+					continue;
+				oValues[i] = cv->GetInt();
+				int prevCallbacksSize = cv->m_fnChangeCallbacks.m_Size;
+				cv->m_fnChangeCallbacks.m_Size = 0;
+				cv->SetValue(values[i]);
+				cv->m_fnChangeCallbacks.m_Size = prevCallbacksSize;
+			}
+
+			VirtualProtect((void*)Signatures::NET_SendPacket_MaxRoutableMin, sizeof(int32_t), PAGE_EXECUTE_READWRITE, &oldProtect);
+			*(int32_t*)(Signatures::NET_SendPacket_MaxRoutableMin) = 36;
+			VirtualProtect((void*)Signatures::NET_SendPacket_MaxRoutableMin, sizeof(int32_t), oldProtect, &oldProtect);
+
+			VirtualProtect((void*)Signatures::TooManyQueuedPackets, sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &oldProtect);
+			*(uint32_t*)(Signatures::TooManyQueuedPackets) = 0x54EB9090;
+			VirtualProtect((void*)Signatures::TooManyQueuedPackets, sizeof(uint32_t), oldProtect, &oldProtect);
+		}
+		else
+		{
+			for (UINT i = 0; i < _countof(varNames); ++i)
+			{
+				ConVar* cv = I::Cvar->FindVar(varNames[i]);
+				if (!cv)
+					continue;
+				cv->SetValue(oValues[i]);
+			}
+
+			VirtualProtect((void*)Signatures::NET_SendPacket_MaxRoutableMin, sizeof(int32_t), PAGE_EXECUTE_READWRITE, &oldProtect);
+			*(int32_t*)(Signatures::NET_SendPacket_MaxRoutableMin) = 576;
+			VirtualProtect((void*)Signatures::NET_SendPacket_MaxRoutableMin, sizeof(int32_t), oldProtect, &oldProtect);
+
+			VirtualProtect((void*)Signatures::TooManyQueuedPackets, sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &oldProtect);
+			*(uint32_t*)(Signatures::TooManyQueuedPackets) = 0x547E083B;
+			VirtualProtect((void*)Signatures::TooManyQueuedPackets, sizeof(uint32_t), oldProtect, &oldProtect);
+		}
+	}
+	*/
 
 	class SkinInfo
 	{
@@ -644,6 +724,10 @@ namespace Settings
 		Misc::FakeCrosshair::Code			.Create("heck_fake_crosshair_code",		"CSGO-4HOZd-3OXKt-LVqWA-aSBcA-7qFOP", 0, "Crosshair share code");
 		Misc::AspectRatio					.Create("heck_aspectratio",				"0", 0,				"4:3=1.33 , 16:9=1.77 , 16:10=1.6",							true, 0.f, true, 4.f,	&AspectRatioChanged);
 		Misc::BypassSvPure					.Create("heck_bypass_sv_pure",			"0", 0,				nullptr,													true, 0.f, true, 1.f);
+		Misc::ServerLagger::Enable			.Create("heck_server_lagger_enable",	"0", 0,				nullptr,													true, 0.f, true, 1.f/*,	&ServerLaggerChanged*/); // works fine without
+		Misc::ServerLagger::Strength		.Create("heck_server_lagger_strength",	"1", 0,				nullptr,													true, 1.f, true, 3.f);
+		Misc::ServerLagger::RestTime		.Create("heck_server_lagger_rest_time",	"0", 0,				"Time between the lag, in seconds",							true, 0.f, true, 10.f);
+		Misc::ServerLagger::LagTime			.Create("heck_server_lagger_lag_time",	"0", 0,				"Lag time, in seconds",										true, 0.f, true, 10.f);
 
 		for (short i = WEAPON_DEAGLE; i <= WEAPON_REVOLVER; ++i)
 		{

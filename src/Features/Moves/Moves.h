@@ -392,6 +392,9 @@ namespace Features
 
 			Misc::DeathSoundTick(curTime);
 
+			if (Settings::Misc::ServerLagger::Enable.GetInt())
+				Misc::ServerLagger();
+
 			if (!player->IsAlive())
 			{
 				autoBlockTarget = -1;

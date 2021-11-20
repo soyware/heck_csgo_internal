@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "resource.h"
+#include "SDK/Platform.h"
+#include "SDK/Worldsize.h"
 #include "SDK/Vector.h"
 #include "SDK/Color.h"
 #include "SDK/Logging.h"
@@ -7,6 +9,9 @@
 #include "Signatures.h"
 #include "SDK/Material.h"
 #include "SDK/Model.h"
+#include "SDK/bitbuf.h"
+#include "SDK/CLZSS.h"
+#include "SDK/Networking.h"
 #include "SDK/Interfaces/Interfaces.h"
 #include "SDK/GameEventListener.h"
 #include "SDK/ConVar.h"
@@ -75,6 +80,8 @@ void Init(HINSTANCE hModule)
 {
 	while (!GetModuleHandle("serverbrowser.dll"))
 		std::this_thread::sleep_for(10s);
+
+	srand(time(nullptr));
 
 	g_hModule = hModule;
 

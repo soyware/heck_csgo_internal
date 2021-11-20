@@ -6,6 +6,7 @@ namespace Hooks
 
 	GetIntFn o_weapon_debug_spread_show_GetInt;
 
+	// TODO: this is unnessesary we can simply set weapon_debug_spread_show to 3, it won't have any repercussions
 	int __fastcall weapon_debug_spread_show_GetInt(ConVar* _this)
 	{
 		if (Settings::Visuals::Crosshair::Snipers.GetInt() &&

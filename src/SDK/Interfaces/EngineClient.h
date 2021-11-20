@@ -131,10 +131,9 @@ public:
 	int			m_nInReliableState;
 
 	int			m_nChokedPackets;	//number of choked packets
-};
 
-class bf_read;
-class bf_write;
+	// ...
+};
 
 enum NET_Messages
 {
@@ -233,79 +232,85 @@ class IVEngineClient
 public:
 	inline void GetScreenSize(int &width, int &height)
 	{
-		typedef void(__thiscall* Fn) (void*, int&, int&);
+		typedef void(__thiscall* Fn) (IVEngineClient*, int&, int&);
 		GetVF<Fn>(this, 5)(this, width, height);
 	}
 
 	inline bool GetPlayerInfo(int EntNum, player_info_t* pInfo)
 	{
-		typedef bool(__thiscall* Fn) (void*, int, player_info_t*);
+		typedef bool(__thiscall* Fn) (IVEngineClient*, int, player_info_t*);
 		return GetVF<Fn>(this, 8)(this, EntNum, pInfo);
 	}
 
 	inline int GetPlayerForUserID(int userID)
 	{
-		typedef int(__thiscall* Fn) (void*, int);
+		typedef int(__thiscall* Fn) (IVEngineClient*, int);
 		return GetVF<Fn>(this, 9)(this, userID);
 	}
 
 	inline bool Con_IsVisible()
 	{
-		typedef bool(__thiscall* Fn) (void*);
+		typedef bool(__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 11)(this);
 	}
 
 	inline int GetLocalPlayer()
 	{
-		typedef int(__thiscall* Fn) (void*);
+		typedef int(__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 12)(this);
 	}
 
 	inline void GetViewAngles(vec3& vAngles)
 	{
-		typedef void(__thiscall* Fn)(void*, vec3&);
+		typedef void(__thiscall* Fn)(IVEngineClient*, vec3&);
 		GetVF<Fn>(this, 18)(this, vAngles);
 	}
 
 	inline void SetViewAngles(vec3& vAngles)
 	{
-		typedef void(__thiscall* Fn)(void*, vec3&);
+		typedef void(__thiscall* Fn)(IVEngineClient*, vec3&);
 		GetVF<Fn>(this, 19)(this, vAngles);
 	}
 
 	inline bool IsInGame()
 	{
-		typedef bool(__thiscall* Fn) (void*);
+		typedef bool(__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 26)(this);
 	}
 
 	inline const char* GetGameDirectory()
 	{
-		typedef const char*(__thiscall* Fn) (void*);
+		typedef const char*(__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 36)(this);
 	}
 
 	inline const VMatrix& WorldToScreenMatrix()
 	{
-		typedef const VMatrix& (__thiscall* Fn) (void*);
+		typedef const VMatrix& (__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 37)(this);
 	}
 
 	inline ISpatialQuery* GetBSPTreeQuery()
 	{
-		typedef ISpatialQuery* (__thiscall* Fn) (void*);
+		typedef ISpatialQuery* (__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 43)(this);
 	}
 
 	inline INetChannel* GetNetChannelInfo()
 	{
-		typedef INetChannel*(__thiscall* Fn) (void*);
+		typedef INetChannel*(__thiscall* Fn) (IVEngineClient*);
 		return GetVF<Fn>(this, 78)(this);
+	}
+
+	inline unsigned int GetEngineBuildNumber()
+	{
+		typedef unsigned int(__thiscall* Fn) (IVEngineClient*);
+		return GetVF<Fn>(this, 104)(this);
 	}
 
 	inline void ClientCmd_Unrestricted(const char* szCmdString, bool fromConsoleOrKeybind = false)
 	{
-		typedef void(__thiscall* Fn) (void*, const char*, bool);
+		typedef void(__thiscall* Fn) (IVEngineClient*, const char*, bool);
 		GetVF<Fn>(this, 114)(this, szCmdString, fromConsoleOrKeybind);
 	}
 };

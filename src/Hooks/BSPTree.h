@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#define MAX_COORD_FLOAT		(16384.f)
-#define MIN_COORD_FLOAT		(-MAX_COORD_FLOAT)
-
 enum
 {
 	RENDER_FLAGS_DISABLE_RENDERING = 0x01,

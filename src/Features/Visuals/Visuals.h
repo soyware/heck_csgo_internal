@@ -918,7 +918,7 @@ namespace Features
 				const int dirPosW = screenW / 2;
 				const int dirPosH = screenH / 2 + 200;
 
-				Draw::Arrow(dirPosW, dirPosH, Moves::AntiAim::realSide ? -90.f : 90.f, Color::White());
+				Draw::Arrow(dirPosW, dirPosH, Moves::AntiAim::realSideRight ? -90.f : 90.f, Color::White());
 
 				return;
 			}

@@ -197,7 +197,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Hooks\BSPTree.h" />
+    <ClInclude Include="Hooks\ClientState.h" />
     <ClInclude Include="Hooks\NetChannel.h" />
+    <ClInclude Include="SDK\bitbuf.h" />
+    <ClInclude Include="SDK\CLZSS.h" />
+    <ClInclude Include="SDK\Networking.h" />
+    <ClInclude Include="SDK\Platform.h" />
+    <ClInclude Include="SDK\Worldsize.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Features\Features.h" />

@@ -47,8 +47,7 @@ namespace Features
 		{
 			float lastRealYaw;
 
-			// false - right, true - left
-			bool realSide = false;
+			bool realSideRight = false;
 
 			enum AAPitchType
 			{
@@ -144,7 +143,7 @@ namespace Features
 
 				float maxDesync = GetMaxDesync(animState);
 
-				float desync = (realSide ? -maxDesync : maxDesync);
+				float desync = (realSideRight ? maxDesync : -maxDesync);
 
 				bool breakingLBY = BreakLBY(player, cmd, bSendPacket, animState, (cmd->viewangles.y + desync));
 				//bool brokenLBY = (cmd->viewangles.y != player->GetLowerBodyYawTarget());
@@ -190,7 +189,7 @@ namespace Features
 
 				float maxDesync = GetMaxDesync(animState);
 
-				float desync = (realSide ? -maxDesync : maxDesync);
+				float desync = (realSideRight ? maxDesync : -maxDesync);
 
 				if (0.1f >= animState->m_flVelocityLengthXY)
 				{

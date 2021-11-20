@@ -125,12 +125,16 @@ namespace Signatures
 		ReadSubChannelData_net_showfragments,
 		C_HLTVCamera__Update_GetDemoPlaybackParameters,
 		CCStrike15BasePanel__OnEvent_GetDemoPlaybackParameters,
-		CClientLeafSystem__InsertIntoTree_ListLeavesInBox
-		/*NET_SendPacket,
-		SpewLimit
+		CClientLeafSystem__InsertIntoTree_ListLeavesInBox,
+		NET_SendLong
+		/*
+		NET_SendPacket_MaxRoutableMin,
+		TooManyQueuedPackets,
+		NET_SendPacket,
+		SpewLimit,
 		NewSignonMsg,
-		ClearSignonMsg,
-		ClientState*/;
+		ClearSignonMsg
+		*/;
 
 	void Init()
 	{
@@ -176,10 +180,12 @@ namespace Signatures
 		C_HLTVCamera__Update_GetDemoPlaybackParameters = Find("client.dll", "\x8B\xF8\x89\x7D\xF8\x85\xFF\x0F\x84\x00\x00\x00\x00\x83\x3D", "xxxxxxxxx????xx");
 		CCStrike15BasePanel__OnEvent_GetDemoPlaybackParameters = Find("client.dll", "\x8B\xC8\x85\xC9\x74\x1F\x80\x79\x10\x00\x74\x19\x83\x79\x0C\x00", "xxxxxxxxxxxxxxxx");
 		CClientLeafSystem__InsertIntoTree_ListLeavesInBox = Find("client.dll", "\xFF\x50\x18\x89\x44\x24\x14\xEB\x08", "xxxxxxxxx") + 3;
+		NET_SendLong							= Find("engine.dll", "\x55\x8B\xEC\x81\xEC\xDC\x04\x00\x00\x8B\x45\x0C\x53\x8B\x5D\x08", "xxxxxxxxx");
+		//NET_SendPacket_MaxRoutableMin			= Find("engine.dll", "\xB8\x00\x00\x00\x00\xEB\x05\x3B\xC6\x0F\x4F\xC6\x8B\x4D\xE8\x8B\xD7\x3B\xD8", "x????xxxxxxxxxxxxxx") + 1;
+		//TooManyQueuedPackets					= Find("steamnetworkingsockets.dll", "\x8B\x55\xFC\x8D\x0C\x16\x3B\x08\x7E\x54\x83\x3D\x00\x00\x00\x00\x04", "xxxxxxxxxxxx????x") + 6;
 		//NET_SendPacket							= Find("engine.dll", "\x55\x8B\xEC\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x53\x8B\xD9\x56\x57\x8B\xFA", "xxxx??xxx????xxxxxxx");
 		//SpewLimit								= Find("steamnetworkingsockets.dll", "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x85\xC0\x7F\x24", "xxxx????xxxx", 4);
 		//NewSignonMsg							= Find("engine.dll", "\x55\x8B\xEC\x56\x57\x8B\xF9\x8D\x4F\x04", "xxxxxxxxxx");
 		//ClearSignonMsg						= Find("engine.dll", "\x53\x56\x57\x8B\xF9\x8D\x77\x38", "xxxxxxxx");
-		//ClientState							= **reinterpret_cast<BYTE***>(Find("engine.dll", "\x8B\x3D\x00\x00\x00\x00\x8A\xF9\xF3\x0F\x11\x45", "xx????xxxxxx") + 2);
 	}
 }

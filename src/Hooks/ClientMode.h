@@ -78,7 +78,7 @@ namespace Hooks
 				if (Settings::Moves::AntiAim::DesyncSwitchSideKey.GetInt() == keynum)
 				{
 					if (Settings::Moves::AntiAim::Enable.GetInt())
-						Features::Moves::AntiAim::realSide = !Features::Moves::AntiAim::realSide;
+						Features::Moves::AntiAim::realSideRight = !Features::Moves::AntiAim::realSideRight;
 				}
 			}
 		}

