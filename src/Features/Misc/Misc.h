@@ -520,39 +520,53 @@ namespace Features
 			}
 		}
 
+		int NET_SendLong(INetChannel* chan, const char* buf, int len, int nMaxRoutableSize)
+		{
+			_asm {
+				mov ecx, chan
+				mov edx, buf
+				push nMaxRoutableSize
+				push len
+				call Signatures::NET_SendLong
+				add esp, 8
+			}
+		}
+
 		// Credits: Harpoon
 		// https://github.com/sieyconhay1001/Harpoon/blob/master/Harpoon/EngineHooks.cpp#L2135
-		void ServerLagger()
+		void ServerLagger(const std::chrono::high_resolution_clock::time_point& curTime)
 		{
-			const float flLagTime = Settings::Misc::ServerLagger::LagTime.GetFloat();
-			const float flRestTime = Settings::Misc::ServerLagger::RestTime.GetFloat();
-			if (0.f < flLagTime && 0.f < flRestTime)
+			const float lagTime = Settings::Misc::ServerLagger::LagTime.GetFloat();
+			const float restTime = Settings::Misc::ServerLagger::RestTime.GetFloat();
+			if (0.f < lagTime && 0.f < restTime)
 			{
-				static int lagCounter = 0;
-				const int lagLimit = TIME_TO_TICKS(flLagTime);
-				if (lagLimit < lagCounter)
+				const static auto highResClockMax = std::chrono::high_resolution_clock::time_point::max();
+
+				static auto lagEndTime = highResClockMax;
+				if (lagEndTime == highResClockMax)
+					lagEndTime = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds((int)(lagTime * 1000.f));
+
+				if (lagEndTime < curTime)
 				{
-					static int restCounter = 0;
-					const int restLimit = TIME_TO_TICKS(flRestTime);
-					if (restLimit < restCounter)
+					static auto restEndTime = highResClockMax;
+					if (restEndTime == highResClockMax)
+						restEndTime = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds((int)(restTime * 1000.f));
+
+					if (restEndTime < curTime)
 					{
-						lagCounter = 0;
-						restCounter = 0;
+						lagEndTime = highResClockMax;
+						restEndTime = highResClockMax;
 					}
 					else
-					{
-						++restCounter;
 						return;
-					}
 				}
-				++lagCounter;
 			}
 
 			INetChannel* chan = I::EngineClient->GetNetChannelInfo();
 			if (!chan)
 				return;
 
-			// valve uses MAX_ROUTABLE_PAYLOAD * 2 for size, but we don't need that much we only write 6 bytes
+			// valve uses MAX_ROUTABLE_PAYLOAD * 2 for size, but we don't need that much we only write 9 bytes
 			static BYTE data[12] = { 0 };
 			if (!data[0])
 			{
@@ -568,7 +582,6 @@ namespace Features
 				buf.WriteLong(I::EngineClient->GetEngineBuildNumber());
 			}
 
-			const BYTE* buf = data;
 			const int len = sizeof(data);
 			const int nMaxRoutableSize = chan->GetMaxRoutablePayloadSize();
 
@@ -577,14 +590,7 @@ namespace Features
 			{
 				// NET_SendLong because we need to send split packets to bypass CSteamSocketMgr ratelimit
 				// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/engine/net_steamsocketmgr.cpp#L258
-				_asm {
-					mov ecx, chan
-					mov edx, buf
-					push nMaxRoutableSize
-					push len
-					call Signatures::NET_SendLong
-					add esp, 8
-				}
+				NET_SendLong(chan, (const char*)data, len, nMaxRoutableSize);
 			}
 		}
 	}
