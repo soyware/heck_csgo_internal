@@ -3,7 +3,7 @@
 inline bool IsTyping()
 {
 	static ConVar* cl_mouseenable = I::Cvar->FindVar("cl_mouseenable");
-	return I::EngineClient->Con_IsVisible() || !cl_mouseenable->GetInt();
+	return !cl_mouseenable->GetInt() || I::EngineClient->Con_IsVisible();
 }
 
 inline bool LineGoesThroughSmoke(const vec3& start, const vec3& end)

@@ -351,6 +351,7 @@ struct CProxyRecvHook
 
 	void Unhook()
 	{
-		*current = original;
+		if (current)
+			*current = original;
 	}
 };

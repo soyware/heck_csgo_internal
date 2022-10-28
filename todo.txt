@@ -9,3 +9,8 @@ improve accuracy of hitboxes
 construct bones of enemies behind
 make desync work with fakelag
 investigate text at the bottom left at the end of the match screen
+port movement recorder
+port bomb info panel
+draw custom recoil crosshair when scoped with AUG
+vote revealer: print team, print vote start, print vote result
+C_CSPlayerResource change functions to vfunc calls?

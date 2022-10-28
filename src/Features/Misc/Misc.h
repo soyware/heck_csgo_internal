@@ -291,7 +291,7 @@ namespace Features
 					return;
 
 				const char* s = strchr(weapon, '_');
-				::Log::PrefixedMsg( "%s bought %s\n", info.name, (s ? s + 1 : weapon));
+				::Log::PrefixedMsg("%.32s bought %s\n", info.name, (s ? s + 1 : weapon));
 			}
 
 			void Hit(int victimIndex, int hitgroup, int dmg, int hp)
@@ -302,7 +302,7 @@ namespace Features
 
 				const char* strHitgroup = HitgroupToString(hitgroup);
 
-				::Log::PrefixedMsg( "Hit %s%s%s for %d dmg (%d hp remaining)\n",
+				::Log::PrefixedMsg("Hit %.32s%s%s for %d dmg (%d hp remaining)\n",
 					info.name,
 					(strHitgroup[0] != '\0') ? "'s " : "",
 					strHitgroup,
@@ -358,7 +358,7 @@ namespace Features
 			if (!I::EngineClient->GetPlayerInfo(voterIndex, &info))
 				return;
 
-			::Log::PrefixedMsg("%s voted %s\n", info.name, (option ? "NO" : "YES"));
+			::Log::PrefixedMsg("%.32s has voted %s\n", info.name, (!option ? "YES" : "NO"));
 		}
 
 		void CmdSpam(const std::chrono::high_resolution_clock::time_point& curTime)
@@ -376,13 +376,12 @@ namespace Features
 
 		bool Voice_RecordStart(const char* pUncompressedFile, const char* pDecompressedFile, const char* pMicInputFile)
 		{
-			__asm
-			{
-				push pMicInputFile
-				mov edx, pDecompressedFile
-				mov ecx, pUncompressedFile
-				call Signatures::Voice_RecordStart
-				add esp, 0x4
+			__asm {
+				push	pMicInputFile
+				mov		edx, pDecompressedFile
+				mov		ecx, pUncompressedFile
+				call	Signatures::Voice_RecordStart
+				add		esp, 0x4
 			}
 		}
 
@@ -501,34 +500,33 @@ namespace Features
 
 			deathsoundEndTime = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(soundLen);
 		}
-
+		
 		void AntiIdleKick(const std::chrono::high_resolution_clock::time_point& curTime, CUserCmd* cmd)
 		{ 
-			static auto lastMovedTime = curTime;
+			static int prevButtons = cmd->buttons;
+			static auto lastActionTime = curTime;
 
-			if (cmd->buttons)
+			if (cmd->buttons != prevButtons)
+				lastActionTime = curTime;
+			else
 			{
-				lastMovedTime = curTime;
-				return;
+				const auto passed = std::chrono::duration_cast<std::chrono::seconds>(curTime - lastActionTime).count();
+				if (30 <= passed)
+					cmd->buttons = (cmd->buttons ^ IN_BULLRUSH);
 			}
-
-			const auto passed = std::chrono::duration_cast<std::chrono::seconds>(curTime - lastMovedTime).count();
-			if (60 <= passed)
-			{
-				cmd->buttons = IN_FORWARD;
-				lastMovedTime = curTime;
-			}
+			
+			prevButtons = cmd->buttons;
 		}
 
 		int NET_SendLong(INetChannel* chan, const char* buf, int len, int nMaxRoutableSize)
 		{
-			_asm {
-				mov ecx, chan
-				mov edx, buf
-				push nMaxRoutableSize
-				push len
-				call Signatures::NET_SendLong
-				add esp, 8
+			__asm {
+				push	nMaxRoutableSize
+				push	len
+				mov		edx, buf
+				mov		ecx, chan
+				call	Signatures::NET_SendLong
+				add		esp, 0x8
 			}
 		}
 

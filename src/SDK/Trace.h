@@ -386,10 +386,11 @@ inline bool CanSeeEachOther(const vec3& start, const vec3& end, C_BaseEntity* en
 		return false;
 
 	Ray_t ray(start, end);
-	// https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/cs_entity_spotting.cpp#L255
-	CTraceFilterSkipTwoEntities filter(entity1, entity2, COLLISION_GROUP_DEBRIS);
+	CTraceFilterSkipTwoEntities filter(entity1, entity2, COLLISION_GROUP_NONE);
 	trace_t tr;
-	I::EngineTrace->TraceRay(ray, (CONTENTS_SOLID | CONTENTS_MOVEABLE | CONTENTS_MONSTER | CONTENTS_DEBRIS), &filter, &tr);
+	// CONTENTS_MONSTER is required to check against doors, barrels, etc.
+	// CONTENTS_HITBOX is required to ACCURATELY check if other player is blocking LOS
+	I::EngineTrace->TraceRay(ray, (MASK_VISIBLE_AND_NPCS | CONTENTS_HITBOX), &filter, &tr);
 
 	return !tr.DidHit();
 }

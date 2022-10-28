@@ -6,11 +6,11 @@ namespace Features
 	{
 		namespace Events
 		{
-			void OnConnect()
+			void OnServerSpawn()
 			{
 				Settings::SkyNameSetOriginal();
 				Settings::SkyNameChanged(nullptr, nullptr, 0.f);
-				Misc::Log::ResetTeamDmg();
+				Misc::Log::ResetTeamDmg(); // TODO: this should be moved to disconnect event
 			}
 
 			static class : public CGameEventListener
@@ -60,7 +60,7 @@ namespace Features
 					}
 					else if (!strcmp(eventName, "server_spawn"))
 					{
-						OnConnect();
+						OnServerSpawn();
 					}
 				}
 			} Listener;

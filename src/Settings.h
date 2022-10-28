@@ -171,7 +171,7 @@ namespace Settings
 		namespace Crosshair
 		{
 			ConVar Snipers;
-			ConVar Recoil; // TODO: would be nice to have custom drawn AUG crosshair
+			ConVar Recoil;
 		}
 
 		namespace ShowImpacts
@@ -231,7 +231,7 @@ namespace Settings
 			ConVar Buy;
 			ConVar Hit;
 			ConVar TeamDmg;
-			ConVar Wins;
+			ConVar Wins; // TODO: change this to dump wins to console
 		}
 
 		namespace FakeCrosshair
@@ -725,7 +725,7 @@ namespace Settings
 		Misc::AspectRatio					.Create("heck_aspectratio",				"0", 0,				"4:3=1.33 , 16:9=1.77 , 16:10=1.6",							true, 0.f, true, 4.f,	&AspectRatioChanged);
 		Misc::BypassSvPure					.Create("heck_bypass_sv_pure",			"0", 0,				nullptr,													true, 0.f, true, 1.f);
 		Misc::ServerLagger::Enable			.Create("heck_server_lagger_enable",	"0", 0,				nullptr,													true, 0.f, true, 1.f/*,	&ServerLaggerChanged*/); // works fine without
-		Misc::ServerLagger::Strength		.Create("heck_server_lagger_strength",	"1", 0,				nullptr,													true, 1.f, true, 3.f);
+		Misc::ServerLagger::Strength		.Create("heck_server_lagger_strength",	"1", 0,				nullptr,													true, 1.f, true, 15.f);
 		Misc::ServerLagger::RestTime		.Create("heck_server_lagger_rest_time",	"0", 0,				"Time between the lag, in seconds",							true, 0.f, true, 10.f);
 		Misc::ServerLagger::LagTime			.Create("heck_server_lagger_lag_time",	"0", 0,				"Lag time, in seconds",										true, 0.f, true, 10.f);
 

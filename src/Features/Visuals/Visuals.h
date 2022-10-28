@@ -791,7 +791,7 @@ namespace Features
 			if (!player)
 				return;
 
-			for (int i = G::GlowObjectManager->m_GlowObjectDefinitions.Count() - 1; i >= 0; --i)
+			for (int i = G::GlowObjectManager->m_GlowObjectDefinitions.Count() - 1; i > 0; --i)
 			{
 				GlowObjectDefinition_t& obj = G::GlowObjectManager->m_GlowObjectDefinitions[i];
 

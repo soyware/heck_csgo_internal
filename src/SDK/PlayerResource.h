@@ -3,6 +3,7 @@
 class C_CSPlayerResource
 {
 public:
+	// change to VFuncs?
 	inline int GetKills(int index) { return reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + NetVars::m_iKills)[index]; }
 	inline int GetAssists(int index) { return reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + NetVars::m_iAssists)[index]; }
 	inline int GetDeaths(int index) { return reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + NetVars::m_iDeaths)[index]; }
